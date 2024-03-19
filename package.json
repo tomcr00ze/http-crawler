@@ -1,0 +1,15 @@
+{
+  "name": "http-crawler",
+  "version": "1.0.0",
+  "description": "- A CLI application that crawls the web and create a report of internal linking structure of a website.\r - Generally used by traditional SEO tools.\r - You can run it on your local machine or could deploy it as a docker image.",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "test": "jest"
+  },
+  "author": "tomcrooze",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
