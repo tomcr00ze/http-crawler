@@ -1,14 +1,17 @@
 const {JSDOM} = require('jsdom')
 
+// Function which actually crawls the page, given the URL from command line args.
 async function crawlPage(currentURL) {
     console.log(`actively crawling: ${currentURL}`);
     try {
         const resp = await fetch(currentURL);
+        // when the website is not reachable
         if (resp.status > 399) {
             console.error(`Error in fetch with status code: ${resp.status} on page: ${currentURL}`);
             return
         }
         const contentType = resp.headers.get('content-type');
+        // when the website gives response other than 'text/html'
         if (!contentType.includes('text/html')) {
             console.error(`Non HTML response, Content-Type: ${contentType} on page: ${currentURL}`);
             return
