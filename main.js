@@ -18,6 +18,7 @@ async function main() {
     const baseURL = process.argv[2];
     console.log(`Starting Crawl of ${baseURL}`);
 
+    // Calling recursive crawlPage function.
     const pages = await crawlPage(baseURL, baseURL, {});
     for(const page of Object.entries(pages)) {
         console.log(page);
