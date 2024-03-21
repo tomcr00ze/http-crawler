@@ -1,25 +1,62 @@
 const {JSDOM} = require('jsdom')
 
-// Function which actually crawls the page, given the URL from command line args.
-async function crawlPage(currentURL) {
+// A Recursive function which actually crawls the website, given the baseURL from command line args.
+// baseURL    -> home page of the website (starting point).
+// currentURL -> page that we are actively crawling.
+// pages      -> object that keeps track of pages that we have crawled so far.
+//               It is a map[normalizedURLs, frequency(of normalizedURLs)].           
+async function crawlPage(baseURL, currentURL, pages) {
+    const baseURLObj = new URL(baseURL);
+    const currentURLObj = new URL(currentURL);
+
+    // Make sure that currentURL is on the same domain as baseURL.
+    // We don't want to crawl the entire internet here.
+    // So, whenever we encounter a link that links out to external site, we ignore it.
+    if (baseURLObj.hostname !== currentURLObj.hostname) {
+        return pages;
+    }
+
+    // Checks whether we have already crawled currentURL page.
+    // If yes, then increment its frequency in pages map.
+    // It helps in finding how many times a certain page is links back to the site.
+    // We will use this info in the report shared to the user.
+    const normalizedCurrentURl = normalizeURL(currentURL);
+    if (pages[normalizedCurrentURl] > 0) {
+        pages[normalizedCurrentURl]++;
+        return pages;
+    }
+    pages[normalizedCurrentURl] = 1;
+
     console.log(`actively crawling: ${currentURL}`);
+
+    //Started fetching(or crawling) the currentURL.
     try {
-        const resp = await fetch(currentURL);
         // when the website is not reachable
+        const resp = await fetch(currentURL);
         if (resp.status > 399) {
             console.error(`Error in fetch with status code: ${resp.status} on page: ${currentURL}`);
-            return
+            return pages;
         }
-        const contentType = resp.headers.get('content-type');
+
         // when the website gives response other than 'text/html'
+        const contentType = resp.headers.get('content-type');
         if (!contentType.includes('text/html')) {
             console.error(`Non HTML response, Content-Type: ${contentType} on page: ${currentURL}`);
-            return
+            return pages;
         }
-        console.log(await resp.text());
+
+        const htmlBody = await resp.text();
+
+        // Extract all the links from the htmlBody, then recursively crawls over them.
+        const nextURLs = getURLsFromHTML(htmlBody, baseURL);
+        for(const nextURL of nextURLs) {
+            pages = await crawlPage(baseURL, nextURL, pages);
+        }
     } catch(err) {
         console.error(`Error in fetching: ${err.message}, on page: ${currentURL}`);
     }
+
+    return pages;
 }
 
 // This function takes two arguments - 

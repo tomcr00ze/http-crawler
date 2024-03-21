@@ -1,6 +1,6 @@
 const {crawlPage} = require('./crawl.js');
 
-function main() {
+async function main() {
     // Here 3 is used because : 
     //      - the 1st argument is the interpreter(or compiler in case of compiled language).
     //      - the 2nd argument is the program file name(with location).
@@ -17,7 +17,11 @@ function main() {
 
     const baseURL = process.argv[2];
     console.log(`Starting Crawl of ${baseURL}`);
-    crawlPage(baseURL);
+
+    const pages = await crawlPage(baseURL, baseURL, {});
+    for(const page of Object.entries(pages)) {
+        console.log(page);
+    }
 }
 
 main()
