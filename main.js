@@ -1,4 +1,5 @@
 const {crawlPage} = require('./crawl.js');
+const {printReport} = require('./report.js');
 
 async function main() {
     // Here 3 is used because : 
@@ -20,9 +21,7 @@ async function main() {
 
     // Calling recursive crawlPage function.
     const pages = await crawlPage(baseURL, baseURL, {});
-    for(const page of Object.entries(pages)) {
-        console.log(page);
-    }
+    printReport(pages);
 }
 
 main()
